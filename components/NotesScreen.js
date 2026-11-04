@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 
 export default function NotesScreen() {
   const [task, setTask] = useState('');
   const [taskList, setTaskList] = useState([]);
 
   const addTask = () => {
-    if (task.trim().length > 0) {
-      setTaskList([...taskList, { id: Date.now().toString(), text: task, completed: false }]);
-      setTask('');
+    if (task.trim().length === 0) {
+      Alert.alert("Validation Error", "Task cannot be empty!");
+      return;
     }
+    setTaskList([...taskList, { id: Date.now().toString(), text: task, completed: false }]);
+    setTask('');
   };
 
   const toggleTask = (id) => {
