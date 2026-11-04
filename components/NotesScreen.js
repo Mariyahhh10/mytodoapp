@@ -67,7 +67,7 @@ export default function NotesScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      <Text style={styles.title}>My Todo List</Text>
+      <Text style={styles.title}>My Daily Tasks</Text>
       <Text style={styles.counterText}>Remaining Tasks: {activeCount}</Text>
       
       <FlatList
