@@ -48,6 +48,13 @@ export default function NotesScreen() {
     ]);
   };
 
+  const clearAll = () => {
+    Alert.alert("Clear All", "Delete all tasks?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Clear All", style: "destructive", onPress: () => { setTaskList([]); saveTasks([]); } }
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Todo List</Text>
@@ -62,6 +69,11 @@ export default function NotesScreen() {
           <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
       </View>
+      {taskList.length > 0 && (
+        <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
+          <Text style={styles.clearButtonText}>Clear All Tasks</Text>
+        </TouchableOpacity>
+      )}
       <View style={styles.listContainer}>
         {taskList.length === 0 ? (
           <Text style={styles.emptyText}>No tasks yet. Add one above!</Text>
@@ -91,6 +103,8 @@ const styles = StyleSheet.create({
   input: { flex: 1, backgroundColor: '#fff', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#ddd' },
   addButton: { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, borderRadius: 8, marginLeft: 10 },
   addButtonText: { color: '#fff', fontWeight: 'bold' },
+  clearButton: { marginBottom: 15, alignSelf: 'flex-end' },
+  clearButtonText: { color: '#ff3b30', fontWeight: 'bold' },
   listContainer: { flex: 1 },
   emptyText: { textAlign: 'center', color: '#888', marginTop: 40, fontSize: 16 },
   taskItem: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' },
