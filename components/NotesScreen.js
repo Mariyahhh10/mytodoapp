@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NotesScreen() {
@@ -50,28 +50,32 @@ export default function NotesScreen() {
 
   const activeCount = taskList.filter(item => !item.completed).length;
 
+  const renderItem = ({ item }) => (
+    <View style={styles.taskItem}>
+      <TouchableOpacity onPress={() => toggleTask(item.id)} style={{ flex: 1 }}>
+        <Text style={[styles.taskText, item.completed && styles.completedText]}>
+          {item.text}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => confirmDelete(item.id)}>
+        <Text style={styles.deleteText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <Text style={styles.title}>My Todo List</Text>
       <Text style={styles.counterText}>Remaining Tasks: {activeCount}</Text>
-      <View style={styles.listContainer}>
-        {taskList.length === 0 ? (
-          <Text style={styles.emptyText}>No tasks yet. Add one above!</Text>
-        ) : (
-          taskList.map((item) => (
-            <View key={item.id} style={styles.taskItem}>
-              <TouchableOpacity onPress={() => toggleTask(item.id)} style={{ flex: 1 }}>
-                <Text style={[styles.taskText, item.completed && styles.completedText]}>
-                  {item.text}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => confirmDelete(item.id)}>
-                <Text style={styles.deleteText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          ))
-        )}
-      </View>
+      
+      <FlatList
+        data={taskList}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        ListEmptyComponent={<Text style={styles.emptyText}>No tasks yet. Add one above!</Text>}
+        style={styles.listContainer}
+      />
+
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
