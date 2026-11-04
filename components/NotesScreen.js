@@ -18,8 +18,11 @@ export default function NotesScreen() {
     setTaskList(taskList.map(item => item.id === id ? { ...item, completed: !item.completed } : item));
   };
 
-  const deleteTask = (id) => {
-    setTaskList(taskList.filter((item) => item.id !== id));
+  const confirmDelete = (id) => {
+    Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: () => setTaskList(taskList.filter(item => item.id !== id)) }
+    ]);
   };
 
   return (
@@ -44,7 +47,7 @@ export default function NotesScreen() {
                 {item.text}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteTask(item.id)}>
+            <TouchableOpacity onPress={() => confirmDelete(item.id)}>
               <Text style={styles.deleteText}>Delete</Text>
             </TouchableOpacity>
           </View>
