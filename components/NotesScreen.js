@@ -228,3 +228,7 @@ const styles = StyleSheet.create({
 });
 
 export default NotesScreen;
+
+// Add default props or validation check
+import React from 'react';
+// ... existing imports
