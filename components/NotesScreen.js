@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NotesScreen() {
@@ -51,20 +51,9 @@ export default function NotesScreen() {
   const activeCount = taskList.filter(item => !item.completed).length;
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <Text style={styles.title}>My Todo List</Text>
       <Text style={styles.counterText}>Remaining Tasks: {activeCount}</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Add a new task..."
-          value={task}
-          onChangeText={setTask}
-        />
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
-      </View>
       <View style={styles.listContainer}>
         {taskList.length === 0 ? (
           <Text style={styles.emptyText}>No tasks yet. Add one above!</Text>
@@ -83,7 +72,18 @@ export default function NotesScreen() {
           ))
         )}
       </View>
-    </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add a new task..."
+          value={task}
+          onChangeText={setTask}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={addTask}>
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
   title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center' },
   counterText: { textAlign: 'center', color: '#666', marginBottom: 15, fontSize: 14 },
-  inputContainer: { flexDirection: 'row', marginBottom: 20 },
+  inputContainer: { flexDirection: 'row', marginTop: 10 },
   input: { flex: 1, backgroundColor: '#fff', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#ddd' },
   addButton: { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, borderRadius: 8, marginLeft: 10 },
   addButtonText: { color: '#fff', fontWeight: 'bold' },
