@@ -1,27 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function NotesScreen() {
   const [task, setTask] = useState('');
   const [taskList, setTaskList] = useState([]);
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const saveTasks = async (newTasks) => {
+    try {
+      await AsyncStorage.setItem('@tasks', JSON.stringify(newTasks));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadTasks = async () => {
+    try {
+      const storedTasks = await AsyncStorage.getItem('@tasks');
+      if (storedTasks !== null) setTaskList(JSON.parse(storedTasks));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const addTask = () => {
     if (task.trim().length === 0) {
       Alert.alert("Validation Error", "Task cannot be empty!");
       return;
     }
-    setTaskList([...taskList, { id: Date.now().toString(), text: task, completed: false }]);
+    const updated = [...taskList, { id: Date.now().toString(), text: task, completed: false }];
+    setTaskList(updated);
+    saveTasks(updated);
     setTask('');
   };
 
   const toggleTask = (id) => {
-    setTaskList(taskList.map(item => item.id === id ? { ...item, completed: !item.completed } : item));
+    const updated = taskList.map(item => item.id === id ? { ...item, completed: !item.completed } : item);
+    setTaskList(updated);
+    saveTasks(updated);
   };
 
   const confirmDelete = (id) => {
     Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => setTaskList(taskList.filter(item => item.id !== id)) }
+      { text: "Delete", style: "destructive", onPress: () => {
+          const updated = taskList.filter(item => item.id !== id);
+          setTaskList(updated);
+          saveTasks(updated);
+        }
+      }
     ]);
   };
 
