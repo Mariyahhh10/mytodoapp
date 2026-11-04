@@ -7,9 +7,13 @@ export default function NotesScreen() {
 
   const addTask = () => {
     if (task.trim().length > 0) {
-      setTaskList([...taskList, { id: Date.now().toString(), text: task }]);
+      setTaskList([...taskList, { id: Date.now().toString(), text: task, completed: false }]);
       setTask('');
     }
+  };
+
+  const toggleTask = (id) => {
+    setTaskList(taskList.map(item => item.id === id ? { ...item, completed: !item.completed } : item));
   };
 
   const deleteTask = (id) => {
@@ -33,7 +37,11 @@ export default function NotesScreen() {
       <View style={styles.listContainer}>
         {taskList.map((item) => (
           <View key={item.id} style={styles.taskItem}>
-            <Text style={styles.taskText}>{item.text}</Text>
+            <TouchableOpacity onPress={() => toggleTask(item.id)} style={{ flex: 1 }}>
+              <Text style={[styles.taskText, item.completed && styles.completedText]}>
+                {item.text}
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => deleteTask(item.id)}>
               <Text style={styles.deleteText}>Delete</Text>
             </TouchableOpacity>
@@ -54,5 +62,6 @@ const styles = StyleSheet.create({
   listContainer: { flex: 1 },
   taskItem: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' },
   taskText: { fontSize: 16 },
+  completedText: { textDecorationLine: 'line-through', color: '#888' },
   deleteText: { color: '#ff3b30', fontWeight: 'bold' },
 });
