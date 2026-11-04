@@ -24,7 +24,8 @@ export default function NotesScreen() {
       Alert.alert("Validation Error", "Task cannot be empty!");
       return;
     }
-    const updated = [...taskList, { id: Date.now().toString(), text: task, completed: false }];
+    const timestamp = new Date().toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const updated = [...taskList, { id: Date.now().toString(), text: task, completed: false, date: timestamp }];
     setTaskList(updated);
     saveTasks(updated);
     setTask('');
@@ -56,6 +57,7 @@ export default function NotesScreen() {
         <Text style={[styles.taskText, item.completed && styles.completedText]}>
           {item.text}
         </Text>
+        {item.date && <Text style={styles.dateText}>{item.date}</Text>}
       </TouchableOpacity>
       <TouchableOpacity onPress={() => confirmDelete(item.id)}>
         <Text style={styles.deleteText}>Delete</Text>
@@ -104,5 +106,6 @@ const styles = StyleSheet.create({
   taskItem: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' },
   taskText: { fontSize: 16 },
   completedText: { textDecorationLine: 'line-through', color: '#888' },
+  dateText: { fontSize: 12, color: '#aaa', marginTop: 4 },
   deleteText: { color: '#ff3b30', fontWeight: 'bold' },
 });
