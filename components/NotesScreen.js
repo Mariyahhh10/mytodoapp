@@ -1,234 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 
-const STORAGE_KEY = '@persistent_notes_key';
+export default function NotesScreen() {
+  const [task, setTask] = useState('');
+  const [taskList, setTaskList] = useState([]);
 
-const NotesScreen = () => {
-  const [notes, setNotes] = useState([]);
-  const [inputText, setInputText] = useState('');
-  const [editingId, setEditingId] = useState(null);
-
-  // READ: Load saved list from storage when the app first mounts
-  useEffect(() => {
-    loadNotes();
-  }, []);
-
-  const loadNotes = async () => {
-    try {
-      const storedNotes = await AsyncStorage.getItem(STORAGE_KEY);
-      if (storedNotes !== null) {
-        // Parse JSON string back into a JavaScript array
-        setNotes(JSON.parse(storedNotes));
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to load notes from storage.');
+  const addTask = () => {
+    if (task.trim().length > 0) {
+      setTaskList([...taskList, { id: Date.now().toString(), text: task }]);
+      setTask('');
     }
   };
 
-  // Helper function to stringify and save notes array to storage
-  const saveNotesToStorage = async (updatedNotes) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
-    } catch (error) {
-      Alert.alert('Error', 'Failed to save note to storage.');
-    }
-  };
-
-  // CREATE or UPDATE handler
-  const handleSaveNote = () => {
-    if (inputText.trim() === '') {
-      Alert.alert('Validation', 'Note cannot be empty.');
-      return;
-    }
-
-    if (editingId !== null) {
-      // UPDATE: Modify existing note item
-      const updatedNotes = notes.map((note) =>
-        note.id === editingId ? { ...note, text: inputText } : note
-      );
-      setNotes(updatedNotes);
-      saveNotesToStorage(updatedNotes);
-      setEditingId(null);
-    } else {
-      // CREATE: Add new note item
-      const newNote = {
-        id: Date.now().toString(),
-        text: inputText,
-      };
-      const updatedNotes = [newNote, ...notes];
-      setNotes(updatedNotes);
-      saveNotesToStorage(updatedNotes);
-    }
-
-    setInputText('');
-  };
-
-  // Populate input field for editing
-  const handleEditNote = (note) => {
-    setInputText(note.text);
-    setEditingId(note.id);
-  };
-
-  // DELETE: Remove item from list and update storage
-  const handleDeleteNote = (id) => {
-    const updatedNotes = notes.filter((note) => note.id !== id);
-    setNotes(updatedNotes);
-    saveNotesToStorage(updatedNotes);
-    if (editingId === id) {
-      setInputText('');
-      setEditingId(null);
-    }
+  const deleteTask = (id) => {
+    setTaskList(taskList.filter((item) => item.id !== id));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headerTitle}>Persistent Notes App</Text>
-
-      {/* Input Section */}
+    <View style={styles.container}>
+      <Text style={styles.title}>My Todo List</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Type a new note..."
-          placeholderTextColor="#888"
-          value={inputText}
-          onChangeText={setInputText}
+          placeholder="Add a new task..."
+          value={task}
+          onChangeText={setTask}
         />
-        <TouchableOpacity style={styles.saveButton} onPress={handleSaveNote}>
-          <Text style={styles.saveButtonText}>
-            {editingId !== null ? 'Update' : 'Add'}
-          </Text>
+        <TouchableOpacity style={styles.addButton} onPress={addTask}>
+          <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Notes List Section */}
-      <FlatList
-        data={notes}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.noteCard}>
-            <Text style={styles.noteText}>{item.text}</Text>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => handleEditNote(item)}
-              >
-                <Text style={styles.buttonText}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleDeleteNote(item.id)}
-              >
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
+      <View style={styles.listContainer}>
+        {taskList.map((item) => (
+          <View key={item.id} style={styles.taskItem}>
+            <Text style={styles.taskText}>{item.text}</Text>
+            <TouchableOpacity onPress={() => deleteTask(item.id)}>
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
           </View>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No saved notes yet. Add one above!</Text>
-        }
-      />
-    </SafeAreaView>
+        ))}
+      </View>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-    padding: 16,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-    color: '#333',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  saveButton: {
-    backgroundColor: '#007bff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginLeft: 8,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  noteCard: {
-    backgroundColor: '#fff',
-    padding: 14,
-    borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-  noteText: {
-    fontSize: 16,
-    color: '#212529',
-    flex: 1,
-    marginRight: 8,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-  },
-  editButton: {
-    backgroundColor: '#ffc107',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-    marginRight: 6,
-  },
-  deleteButton: {
-    backgroundColor: '#dc3545',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#6c757d',
-    marginTop: 40,
-    fontSize: 16,
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+  inputContainer: { flexDirection: 'row', marginBottom: 20 },
+  input: { flex: 1, backgroundColor: '#fff', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#ddd' },
+  addButton: { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, borderRadius: 8, marginLeft: 10 },
+  addButtonText: { color: '#fff', fontWeight: 'bold' },
+  listContainer: { flex: 1 },
+  taskItem: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' },
+  taskText: { fontSize: 16 },
+  deleteText: { color: '#ff3b30', fontWeight: 'bold' },
 });
-
-export default NotesScreen;
-
-// Add default props or validation check
-import React from 'react';
-// ... existing imports
