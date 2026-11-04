@@ -6,25 +6,17 @@ export default function NotesScreen() {
   const [task, setTask] = useState('');
   const [taskList, setTaskList] = useState([]);
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+  useEffect(() => { loadTasks(); }, []);
 
   const saveTasks = async (newTasks) => {
-    try {
-      await AsyncStorage.setItem('@tasks', JSON.stringify(newTasks));
-    } catch (e) {
-      console.error(e);
-    }
+    try { await AsyncStorage.setItem('@tasks', JSON.stringify(newTasks)); } catch (e) { console.error(e); }
   };
 
   const loadTasks = async () => {
     try {
       const storedTasks = await AsyncStorage.getItem('@tasks');
       if (storedTasks !== null) setTaskList(JSON.parse(storedTasks));
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const addTask = () => {
@@ -71,18 +63,22 @@ export default function NotesScreen() {
         </TouchableOpacity>
       </View>
       <View style={styles.listContainer}>
-        {taskList.map((item) => (
-          <View key={item.id} style={styles.taskItem}>
-            <TouchableOpacity onPress={() => toggleTask(item.id)} style={{ flex: 1 }}>
-              <Text style={[styles.taskText, item.completed && styles.completedText]}>
-                {item.text}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => confirmDelete(item.id)}>
-              <Text style={styles.deleteText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+        {taskList.length === 0 ? (
+          <Text style={styles.emptyText}>No tasks yet. Add one above!</Text>
+        ) : (
+          taskList.map((item) => (
+            <View key={item.id} style={styles.taskItem}>
+              <TouchableOpacity onPress={() => toggleTask(item.id)} style={{ flex: 1 }}>
+                <Text style={[styles.taskText, item.completed && styles.completedText]}>
+                  {item.text}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => confirmDelete(item.id)}>
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
       </View>
     </View>
   );
@@ -96,6 +92,7 @@ const styles = StyleSheet.create({
   addButton: { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, borderRadius: 8, marginLeft: 10 },
   addButtonText: { color: '#fff', fontWeight: 'bold' },
   listContainer: { flex: 1 },
+  emptyText: { textAlign: 'center', color: '#888', marginTop: 40, fontSize: 16 },
   taskItem: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, borderRadius: 8, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' },
   taskText: { fontSize: 16 },
   completedText: { textDecorationLine: 'line-through', color: '#888' },
