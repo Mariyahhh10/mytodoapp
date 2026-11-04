@@ -1,13 +1,14 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'; // or from 'react-native'
 import { registerRootComponent } from 'expo';
 import NotesScreen from './components/NotesScreen';
 
 export default function App() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <NotesScreen />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -18,5 +19,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// This line registers your main component for Expo
 registerRootComponent(App);
